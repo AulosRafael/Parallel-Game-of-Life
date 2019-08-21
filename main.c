@@ -1,10 +1,17 @@
+/******************************
+* Created by: Márcio Medeiros *
+* in: 20/08/2019              *
+******************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 
+//Gets 1-dimension position in array given 2-dimension positions and the matrix width
 int pos(int i,int j,int y){
     return i*y+j;
 }
 
+//Prints the board in a "beautiful" way
 void show(int* board, int x, int y){
     puts("------------------------------");
     for(int i = 0; i < x; i++){
@@ -16,6 +23,7 @@ void show(int* board, int x, int y){
     puts("------------------------------");
 }
 
+//Checks if given cell is alive according to Conway's Game of Life rules(note that the board is circular on the edges)
 int alive(int* life, int i, int j, int x, int y){
     int u = pos(i - 1 < 0 ? x-1 : i - 1, j, y);
     int d = pos(i + 1 > x-1 ? 0 : i + 1, j, y);
@@ -29,17 +37,22 @@ int alive(int* life, int i, int j, int x, int y){
     return (!life[pos(i,j,y)] && count == 3) || (life[pos(i,j,y)] && count > 1 && count < 4);
 }
 
+//Copies array b into array a by value
 void copyBoard(int* a, int*b, int size){
     for(int i = 0; i < size; i++){
         a[i] = b[i];
     }
 }
 
+//Executes the Game of Life Algorithim showing the initial and final boards
+// arg 1 = boards height
+// arg 2 = boards width
+// arg 3 = number of iterations
 int main(int argc, char **argv)
 {
     int x = atoi(argv[1]);
     int y = atoi(argv[2]);
-    int repeats = atoi(argv[3]);
+    int iterations = atoi(argv[3]);
     
     int life[x*y];
     int lifeN[x*y];
@@ -56,14 +69,13 @@ int main(int argc, char **argv)
     copyBoard(lifeN, life, x*y);
     show(life,x,y);
     
-    for(int z = 0; z < repeats; z++){
+    for(int z = 0; z < iterations; z++){
         for(int i = 0; i < x; i++){
             for(int j = 0; j < y; j++){
                 lifeN[pos(i,j,y)] = alive(life, i, j, x, y);
             }
         }
         copyBoard(life, lifeN, x*y);
-        show(life,x,y);
     }
 
     show(life, x, y);
