@@ -1,4 +1,5 @@
-#include "header.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 
 //Gets 1-dimension position in array given 2-dimension positions and the matrix width
@@ -22,7 +23,7 @@ int alive(int* life, int i, int j, int x, int y){
 }
 
 
-int* createBoard() {
+int* createBoard(int height, int width) {
     int *board = malloc(height * width * sizeof(int));
     return board;
 }
@@ -33,7 +34,7 @@ void freeBoard(int *board) {
 }
 
 
-void initBoard(int *board, char *file_name) {
+void initBoard(int *board, char *file_name, int height, int width) {
     FILE *file = fopen(file_name, "r");
     if (file == NULL) {
         printf("Cannot open file \n");
@@ -53,7 +54,7 @@ void initBoard(int *board, char *file_name) {
 
 
 //Prints the board in a "beautiful" way
-void showBoard(int *board) {
+void showBoard(int *board, int height, int width) {
     printf("Board: %d x %d\n", height, width);
     puts("------------------------------");
     for(int i = 0; i < height; i++) {
@@ -66,7 +67,7 @@ void showBoard(int *board) {
 }
 
 
-void core(int row_start, int row_end) {
+void core(int *life, int *lifeN, int row_start, int row_end, int height, int width) {
     for(int i = row_start; i < row_end; i++)
         for(int j = 0; j < width; j++)
             lifeN[pos(i,j,width)] = alive(life, i, j, height, width);

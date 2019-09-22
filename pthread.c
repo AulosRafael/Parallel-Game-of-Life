@@ -3,12 +3,33 @@
 * in: 20/08/2019              *
 ******************************/
 
-#include "header.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <time.h>
+
+
+// variaveis globais
+int iterations, itt;
+int height, width;
+int *life, *lifeN, *aux;
+int rows_thread, rows_last_thread; // divisao de linhas por thread
+int num_threads;
+pthread_barrier_t barrier;
+
+// prototype
+int* createBoard(int height, int width);
+void freeBoard(int *board);
+void initBoard(int *board, char *file_name, int height, int width);
+void showBoard(int *board, int height, int width);
+void core(int *life, int *lifeN, int row_start, int row_end, int height, int width);
+void run(int row_start, int row_end, int id);
+void* gameOfLife(void* arg);
 
 
 void run(int row_start, int row_end, int id) {
     while (itt < iterations) {
-        core(row_start, row_end);
+        core(life, lifeN, row_start, row_end, height, width);
 
         // wait for all threads        
         pthread_barrier_wait(&barrier);
@@ -64,10 +85,10 @@ int main(int argc, char **argv) {
     int flag, i;
     int *id;
 
-    life = createBoard();
-    lifeN = createBoard();
-    initBoard(life, file_name);
-    // showBoard(life);
+    life = createBoard(height, width);
+    lifeN = createBoard(height, width);
+    initBoard(life, file_name, height, width);
+    // showBoard(life, height, width);
 
     // divisão das linhas por thread
     rows_thread = height / num_threads; 
@@ -92,7 +113,7 @@ int main(int argc, char **argv) {
     tf = clock();
     printf("Tempo de execucao: %lf", ((double)tf-ti)/((CLOCKS_PER_SEC/1000)));
 
-    // showBoard(life);
+    // showBoard(life, height, width);
 
     pthread_barrier_destroy(&barrier);
     freeBoard(life);
