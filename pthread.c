@@ -20,7 +20,7 @@ pthread_barrier_t barrier;
 // prototype
 int* createBoard(int height, int width);
 void freeBoard(int *board);
-void initBoard(int *board, char *file_name, int height, int width);
+int* createInitBoard(char *file_name, int *height, int *width);
 void showBoard(int *board, int height, int width);
 void core(int *life, int *lifeN, int row_start, int row_end, int height, int width);
 void run(int row_start, int row_end, int id);
@@ -64,31 +64,25 @@ void* gameOfLife(void* arg) {
 
 
 //Executes the Game of Life Algorithim showing the initial and final boards
-// arg 1 = boards height
-// arg 2 = boards width
-// arg 3 = number of iterations
-// arg 4 = file input board
-// arg 5 = number of threads
+// arg 1 = number of iterations
+// arg 2 = file input board
+// arg 3 = number of threads
 
 int main(int argc, char **argv) {
-    if (argc < 6) exit(0);
+    if (argc < 4) exit(0);
     clock_t ti, tf;
 
-    height = atoi(argv[1]);
-    width = atoi(argv[2]);
-    iterations = atoi(argv[3]);
+    iterations = atoi(argv[1]);
     itt = 0;
-    char *file_name = argv[4];
-    num_threads = atoi(argv[5]);
+    char *file_name = argv[2];
+    num_threads = atoi(argv[3]);
 
     pthread_t threads[num_threads];
-    int flag, i;
     int *id;
+    int flag, i;
 
-    life = createBoard(height, width);
+    life = createInitBoard(file_name, &height, &width);
     lifeN = createBoard(height, width);
-    initBoard(life, file_name, height, width);
-    // showBoard(life, height, width);
 
     // divisão das linhas por thread
     rows_thread = height / num_threads; 
@@ -106,14 +100,13 @@ int main(int argc, char **argv) {
             printf("Erro na criacao da thread\n");
     }
 
-    // printf("esperando threads...\n");
     for(i = 0; i < num_threads; i++)
         pthread_join(threads[i], NULL); /*uniao das threads */
 
     tf = clock();
-    printf("Tempo de execucao: %lf", ((double)tf-ti)/((CLOCKS_PER_SEC/1000)));
-
     // showBoard(life, height, width);
+    // printf("Pthread\n%d threads\n%dx%d board\n%d iteracoes\n", num_threads, height, width, iterations);
+    printf("%lf\n", ((double)tf-ti) / CLOCKS_PER_SEC);
 
     pthread_barrier_destroy(&barrier);
     freeBoard(life);

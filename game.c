@@ -34,36 +34,32 @@ void freeBoard(int *board) {
 }
 
 
-void initBoard(int *board, char *file_name, int height, int width) {
+int* createInitBoard(char *file_name, int *height, int *width) {    
     FILE *file = fopen(file_name, "r");
     if (file == NULL) {
         printf("Cannot open file \n");
         exit(0);
     }
 
-    int i = 0;
+    int *board = (int*) malloc(1);
+    int lin = 1, size = 0;
     char c;
-    while (i < height * width) {
-        c = fgetc(file);
-        if (c == '.' || c == 'x')
-            board[i++] = c=='x';            
-    }
-
-    fclose(file);
-}
-
-
-//Prints the board in a "beautiful" way
-void showBoard(int *board, int height, int width) {
-    printf("Board: %d x %d\n", height, width);
-    puts("------------------------------");
-    for(int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
-            printf("%d", board[pos(i,j,width)]);
+    while ((c = fgetc(file)) != EOF) {
+        if (c == '.' || c == 'x') {
+            size++;
+            board = (int*) realloc(board, size * sizeof(int));
+            board[size-1] = c=='x';
         }
-        puts(" ");
+
+        else if (c == '\n') {
+            lin++;
+        }
     }
-    puts("------------------------------");
+
+    *height = lin; 
+    *width = size / lin;
+    fclose(file);
+    return board;
 }
 
 
@@ -71,4 +67,30 @@ void core(int *life, int *lifeN, int row_start, int row_end, int height, int wid
     for(int i = row_start; i < row_end; i++)
         for(int j = 0; j < width; j++)
             lifeN[pos(i,j,width)] = alive(life, i, j, height, width);
+}
+
+
+//Prints the board in a "beautiful" way
+void showBoard(int *board, int height, int width) {
+    // system("@cls||clear");
+    printf("Board: %d x %d\n", height, width);
+    
+    int i;
+    for (int i = 0; i < width; i++)
+        printf("+");
+    puts("");
+
+    for(i = 0; i < height; i++) {
+        for(int j = 0; j < width; j++) {
+            if (board[pos(i,j,width)] == 0)
+                printf(" ");
+            else
+                printf("o");
+        }
+        puts("|");
+    }
+
+    for (int i = 0; i < width; i++)
+        printf("+");
+    puts("|");
 }
