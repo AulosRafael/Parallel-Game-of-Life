@@ -9,6 +9,7 @@ int height, width;
 int *life, *lifeN, *aux;
 int rows_thread, rows_last_thread; // divisao de linhas por thread
 int thread_count;
+int itt;
 
 // prototype
 int* createBoard(int height, int width);
@@ -21,22 +22,18 @@ void gameOfLife(void);
 
 
 void run(int row_start, int row_end, int id) {
-    int itt = 0;
     while (itt < iterations) {
         core(life, lifeN, row_start, row_end, height, width);
 
-        // wait for all threads        
         #pragma omp barrier
 
-        // copy boards
         if (id == 0) {
             aux = lifeN;
             lifeN = life;
             life = aux;
             itt++;
         }
-
-        // wait for all threads        
+        
         #pragma omp barrier
     }
 }
@@ -65,13 +62,14 @@ int main(int argc, char **argv) {
     iterations = atoi(argv[1]);
     char *file_name = argv[2];
     thread_count = atoi(argv[3]);
+    itt = 0;
     
     life = createInitBoard(file_name, &height, &width);
     lifeN = createBoard(height, width);
 
-    // divisão das linhas por thread
+    // linhas por thread
     rows_thread = height / thread_count; 
-    rows_last_thread = height % thread_count; //linhas para ultima thread
+    rows_last_thread = height % thread_count;
 
     ti = clock();
 
@@ -79,6 +77,7 @@ int main(int argc, char **argv) {
         gameOfLife();
 
     tf = clock();
+    
     // showBoard(life, height, width);
     // printf("Pthread\n%d threads\n%dx%d board\n%d iteracoes\n", num_threads, height, width, iterations);
     printf("%lf\n", ((double)tf-ti) / CLOCKS_PER_SEC);
